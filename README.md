@@ -9,6 +9,6 @@ The user can browse the map around his position, and every restaurant that gives
 (Link to Trello : https://trello.com/b/HD4dy8Jb/lefto-android-project)
 
 ## DB Schema
-Restaurant : Name, Latitude(double), Longitude(double),Type (string,ex: italian), Vegan : bool, Halal : bool
-Client : Username, City
-Leftover : Name, description, Vegan : bool, Hallal : bool, quantity
+Restaurant : Name, Latitude(double), Longitude(double),Type (string,ex: italian), Vegan : bool, Halal : bool  
+Client : Username, City  
+Leftover : Name, description, Vegan : bool, Hallal : bool, quantity  
