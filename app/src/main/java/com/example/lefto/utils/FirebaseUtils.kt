@@ -8,7 +8,7 @@ import com.example.lefto.view.LogInActivity
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 
-class FirebaseUtils(val db: FirebaseFirestore) {
+class FirebaseUtils(private val db: FirebaseFirestore) {
 
     companion object {
         private val TAG = FirebaseUtils::class.java.name
@@ -51,12 +51,14 @@ class FirebaseUtils(val db: FirebaseFirestore) {
     }
 
     fun getAllRestaurants() {
-        var restaurantList = mutableListOf<RestaurantItem>()
+        val restaurantList = mutableListOf<RestaurantItem>()
         db.collection(RESTAURANT_COLLECTION)
             .get()
             .addOnSuccessListener { result ->
-                for (document in result) {
-                    restaurantList.add(document.toObject<RestaurantItem>())
+                for (document in result.documents) {
+                    val restaurant = document.toObject<RestaurantItem>()
+                    Log.d(TAG, "$restaurant")
+                    restaurant?.let { restaurantList.add(it) }
                     Log.d(TAG, "${document.id} => ${document.data}")
                 }
             }
@@ -66,13 +68,14 @@ class FirebaseUtils(val db: FirebaseFirestore) {
     }
 
     fun getLeftovers(restaurant: RestaurantItem) {
-        var leftoverList = mutableListOf<LeftOverItem>()
+        val leftoverList = mutableListOf<LeftOverItem>()
         db.collection(LEFTOVER_COLLECTION)
             .whereEqualTo("restaurantItem.name", restaurant.name)
             .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    leftoverList.add(document.toObject<LeftOverItem>())
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    val leftover = document.toObject<LeftOverItem>()
+                    leftover.let { leftoverList.add(it) }
                     Log.d(TAG, "${document.id} => ${document.data}")
                 }
             }
