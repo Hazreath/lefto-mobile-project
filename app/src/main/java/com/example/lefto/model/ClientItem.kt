@@ -1,3 +1,3 @@
 package com.example.lefto.model
 
-data class ClientItem(var id: Long, var city: String)
+data class ClientItem(var email: String, var city: String)
