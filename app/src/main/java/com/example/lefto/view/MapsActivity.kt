@@ -1,4 +1,4 @@
-package com.example.lefto
+package com.example.lefto.view
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -11,6 +11,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProviders
+import com.example.lefto.R
+import com.example.lefto.ViewModel.MapsActivityViewModel
 import com.example.lefto.data.GoogleMapDTO
 import com.example.lefto.utils.GoogleMapsUtils
 import com.example.lefto.utils.LocationUtils
@@ -43,6 +46,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
+
+        val model = ViewModelProviders.of(this).get(MapsActivityViewModel::class.java)
+        val restaurants = model.getRestaurantList()
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
