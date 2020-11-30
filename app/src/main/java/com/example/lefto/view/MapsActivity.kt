@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.example.lefto.R
 import com.example.lefto.ViewModel.MapsActivityViewModel
 import com.example.lefto.data.GoogleMapDTO
+import com.example.lefto.model.LeftOverItem
 import com.example.lefto.utils.GoogleMapsUtils
 import com.example.lefto.utils.LocationUtils
 
@@ -23,6 +24,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -33,8 +35,8 @@ import okhttp3.Request
 import com.google.android.gms.maps.model.PolylineOptions
 
 
+//GoogleMap.OnMarkerClickListener
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
-
 
     companion object {
         const val ACCESS_FINE_LOCATION_RQ = 500
@@ -42,21 +44,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private lateinit var mMap: GoogleMap
+    private var leftovers: MutableList<LeftOverItem>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
         val model = ViewModelProviders.of(this).get(MapsActivityViewModel::class.java)
-        val restaurants = model.getRestaurantList()
+//        val restaurants = model.getRestaurantList()
+
+        leftovers = model.getLeftOverList()
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-        // Update your app to properly request permissions from the user when first started.
-        checkForPermissions(Manifest.permission.ACCESS_FINE_LOCATION, "phone state", ACCESS_FINE_LOCATION_RQ)
     }
 
     private fun checkForPermissions(permission: String, name: String, requestCode: Int) {
@@ -128,7 +130,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      */
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+
+        // Update your app to properly request permissions from the user when first started.
+        checkForPermissions(Manifest.permission.ACCESS_FINE_LOCATION, "phone fine location", ACCESS_FINE_LOCATION_RQ)
+
+        leftovers?.let {
+            it.forEach { leftover ->
+                val position = LatLng(leftover.restaurantItem.latitude, leftover.restaurantItem.longitude)
+
+                mMap.addMarker(
+                    MarkerOptions()
+                        .position(position)
+                        .title(leftover.restaurantItem.name)
+                )
+            }
+        }
+
+//        mMap.setOnMarkerClickListener(this)
     }
+
 
     private fun locationWork() {
         val mode = "walking"
