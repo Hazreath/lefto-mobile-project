@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "880876207593",
+    "firebase_url": "https://lefto-a8c0e.firebaseio.com",
+    "project_id": "lefto-a8c0e",
+    "storage_bucket": "lefto-a8c0e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:880876207593:android:3c172803a7997d7c38df78",
+        "android_client_info": {
+          "package_name": "com.example.lefto"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "880876207593-13eeppdlj86q1cojo46pl84a6npfktr6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.lefto",
+            "certificate_hash": "7faf5d68d7f5f1cf5ebb52b0b20128673666c3bd"
+          }
+        },
+        {
+          "client_id": "880876207593-mnu55vg87ls4kkc04hutva5p29et87u8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKXYLZMcnsO13-ZSLp_aBcFe4LyzYNnBM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "880876207593-mnu55vg87ls4kkc04hutva5p29et87u8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
