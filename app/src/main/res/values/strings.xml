@@ -2,7 +2,7 @@
     <string name="app_name">Lefto</string>
     <string name="title_activity_maps">Map</string>
 
-    <string name="title_activity_login">Login</string>
+<!--    <string name="title_activity_login">Login</string>-->
     <string name="title_activity_login">LoginActivity</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
@@ -12,5 +12,12 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
+
+    <!--    INTENTS NAMES -->
+    <string name="intent_login_restaurant">"RESTAURANT_INSTANCE"</string>
+    <string name="intent_login_id_restaurant">"ID_RESTAURANT_INSTANCE"</string>
+    <!--    ERROR MESSAGES-->
+    <string name="err_invalid_credentials">"Wrong username or password"</string>
+
 
 </resources>
