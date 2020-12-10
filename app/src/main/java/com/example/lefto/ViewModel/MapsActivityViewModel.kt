@@ -29,9 +29,9 @@ class MapsActivityViewModel: ViewModel() {
     }
 
     private fun loadLeftOverList() {
-        val restaurant = RestaurantItem("La Dolce Vita", 58.38217369982617, 26.722880700728307)
+        val restaurant = RestaurantItem("La Dolce Vita", 58.38217369982617, 26.722880700728307, "", false, false)
 
-        val restaurant2 = RestaurantItem("Mandala", 58.381034174116714, 26.722682379870015)
+        val restaurant2 = RestaurantItem("Mandala", 58.381034174116714, 26.722682379870015, "", false, false)
 
         leftOverList = mutableListOf(
             LeftOverItem("something", "with a description", true,
