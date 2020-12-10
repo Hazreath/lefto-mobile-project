@@ -20,7 +20,8 @@ class RestaurantActivity : AppCompatActivity() {
         LeftOverItem("Eggplants","not yummy",
             true,true,2,resto),
     )
-
+    // TODO popups
+    // TODO Database communication
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_restaurant)
