@@ -1,5 +1,6 @@
 package com.example.lefto.utils
 
+import android.app.Activity
 import android.util.Log
 import com.example.lefto.model.ClientItem
 import com.example.lefto.model.LeftOverItem
@@ -8,7 +9,7 @@ import com.example.lefto.view.LogInActivity
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 
-class FirebaseUtils(private val db: FirebaseFirestore) {
+class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
 
     companion object {
         private val TAG = FirebaseUtils::class.java.name
@@ -22,9 +23,11 @@ class FirebaseUtils(private val db: FirebaseFirestore) {
             .add(client)
             .addOnSuccessListener { documentReference ->
                 Log.d(TAG, "Client written with ID: ${documentReference.id}")
+                GeneralUtils.showToast(activity,"Registered successfully !")
             }
             .addOnFailureListener { e ->
                 Log.w(TAG, "Error adding client", e)
+                GeneralUtils.showToast(activity,"Error occured during registration.")
             }
     }
 
@@ -33,9 +36,11 @@ class FirebaseUtils(private val db: FirebaseFirestore) {
             .add(restaurant)
             .addOnSuccessListener { documentReference ->
                 Log.d(TAG, "Restaurant written with ID: ${documentReference.id}")
+                GeneralUtils.showToast(activity,"Registered successfully !")
             }
             .addOnFailureListener { e ->
                 Log.w(TAG, "Error adding restaurant", e)
+                GeneralUtils.showToast(activity,"Error occured during registration.")
             }
     }
 
