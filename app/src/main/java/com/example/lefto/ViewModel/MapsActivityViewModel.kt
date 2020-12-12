@@ -29,17 +29,19 @@ class MapsActivityViewModel: ViewModel() {
     }
 
     private fun loadLeftOverList() {
-        val restaurant = RestaurantItem("La Dolce Vita", 58.38217369982617, 26.722880700728307, "", false, false)
+        val restaurant = RestaurantItem(name="La Dolce Vita", latitude = 58.38217369982617, longitude = 26.722880700728307)
 
-        val restaurant2 = RestaurantItem("Mandala", 58.381034174116714, 26.722682379870015, "", false, false)
+        val restaurant2 = RestaurantItem(name="Mandala", latitude = 58.381034174116714, longitude=26.722682379870015)
 
         leftOverList = mutableListOf(
-            LeftOverItem("something", "with a description", true,
+            LeftOverItem(name="something", description = "with a description",
+                vegan = true,
                 halal = false,
                 quantity = 5,
                 restaurantItem = restaurant
             ),
-            LeftOverItem("something", "with a description", true,
+            LeftOverItem(name="something", description = "with a description",
+                vegan = true,
                 halal = false,
                 quantity = 5,
                 restaurantItem = restaurant2

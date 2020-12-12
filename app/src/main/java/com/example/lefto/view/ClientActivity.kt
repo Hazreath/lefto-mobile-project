@@ -24,7 +24,6 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -36,7 +35,7 @@ import com.google.android.gms.maps.model.PolylineOptions
 
 
 //GoogleMap.OnMarkerClickListener
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         const val ACCESS_FINE_LOCATION_RQ = 500
@@ -111,7 +110,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             setMessage("Permission to access your $name is required to use this app.")
             setTitle("Permission required")
             setPositiveButton("OK") { dialog, which ->
-                ActivityCompat.requestPermissions(this@MapsActivity, arrayOf(permission), requestCode)
+                ActivityCompat.requestPermissions(this@ClientActivity, arrayOf(permission), requestCode)
             }
         }
 

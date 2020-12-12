@@ -1,6 +1,7 @@
 package com.example.lefto.model
 
 data class LeftOverItem(
+    var id: String="",
     var name: String = "",
     var description: String = "",
     var vegan : Boolean = false,

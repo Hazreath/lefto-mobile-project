@@ -1,18 +1,15 @@
-package com.example.lefto
+package com.example.lefto.view
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
-import android.widget.LinearLayout
-import android.widget.ListView
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.lefto.R
 import com.example.lefto.adapter.LeftoverAdapter
 import com.example.lefto.model.LeftOverItem
 import com.example.lefto.model.RestaurantItem
 import com.example.lefto.utils.FirebaseUtils
-import com.example.lefto.view.MapsActivity
-import com.google.android.gms.common.internal.FallbackServiceBroker
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_restaurant.*
@@ -26,18 +23,20 @@ class RestaurantActivity : AppCompatActivity() {
 //            true,true,2,resto),
 //    )
     companion object {
-        var resto = RestaurantItem("Tasty",0.0,0.0)
+        var resto = RestaurantItem(name="Tasty")
         lateinit var adapter : LeftoverAdapter
+        lateinit var DAO : FirebaseUtils
     }
+
     var leftovers = ArrayList<LeftOverItem>()
     var REQUEST_ADD_LEFTOVER = 120
-    private val DAO = FirebaseUtils(this, Firebase.firestore)
+
     // TODO popups
     // TODO Database communication
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_restaurant)
-
+        DAO = FirebaseUtils(this, Firebase.firestore)
         val arrayAdapter = ArrayAdapter<LeftOverItem>(this,
             android.R.layout.simple_list_item_1,leftovers)
         list_leftovers.layoutManager = LinearLayoutManager(this)
@@ -58,6 +57,7 @@ class RestaurantActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         // fetch data from DB
+        leftovers.clear()
         DAO.getLeftovers(resto, leftovers)
     }
 }

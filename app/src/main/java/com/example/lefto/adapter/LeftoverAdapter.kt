@@ -4,15 +4,15 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lefto.R
+import com.example.lefto.view.RestaurantActivity
 import com.example.lefto.holder.LeftoverViewHolder
 import com.example.lefto.model.LeftOverItem
 //import kotlinx.android.synthetic.main.list_item_layout.view.*
 import kotlinx.android.synthetic.main.list_leftover_layout.view.*
-import java.lang.Integer.parseInt
 
 class LeftoverAdapter (val leftovers: List<LeftOverItem>) :
     RecyclerView.Adapter<LeftoverViewHolder>() {
-
+    private val DAO = RestaurantActivity.DAO
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LeftoverViewHolder {
         val view = LayoutInflater.from(parent.context).
             inflate(R.layout.list_leftover_layout, parent,false)
@@ -25,23 +25,23 @@ class LeftoverAdapter (val leftovers: List<LeftOverItem>) :
         holder.item.tv_name.text = leftover.name
         holder.item.tv_quantity.text = leftover.quantity.toString()
         holder.item.btn_plus.setOnClickListener {
-            holder.item.tv_quantity.text =
-                (parseInt(holder.item.tv_quantity.text.toString()) + 1).toString()
+            leftover.quantity++
+            holder.item.tv_quantity.text = leftover.quantity.toString()
 
             // Add 1 to related leftover in DB TODO
+            DAO.updateLeftoverQuantity(leftover)
         }
 
         holder.item.btn_minus.setOnClickListener {
-            var newQty = parseInt(holder.item.tv_quantity.text.toString()) - 1
+            var newQty = leftover.quantity - 1
 
-            if (newQty > 0) {
+            if (newQty >= 0) {
                 // Sub 1 to related leftover in DB TODO
+                leftover.quantity--
                 holder.item.tv_quantity.text =
                     newQty.toString()
-            } else {
-                // Delete leftover entry TODO
-
-            }
+                DAO.updateLeftoverQuantity(leftover)
+            } // if click on qty = 0, do nothing
         }
     }
 

@@ -1,82 +1,32 @@
-package com.example.lefto
+package com.example.lefto.legacy
 
-import android.app.PendingIntent.getActivity
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.CompoundButton
 import android.widget.Toast
-import com.example.lefto.model.RestaurantItem
-import com.example.lefto.utils.GeneralUtils.Companion.showToast
-import com.example.lefto.view.MapsActivity
+import androidx.appcompat.app.AppCompatActivity
+import com.example.lefto.R
+import com.example.lefto.view.ClientActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_login.*
 
-class LoginActivity : AppCompatActivity() {
-    private var switch_state = false // default : client
+class oldLogInActivity: AppCompatActivity() {
+
     companion object {
-        private val TAG = LoginActivity::class.java.name
+        private val TAG = oldLogInActivity::class.java.name
     }
+
     private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-
         setLoginButtonListener()
 
         auth = Firebase.auth
-
-        // Client/Restaurant switch
-        sw_type.setOnCheckedChangeListener {
-                buttonView, isChecked ->
-
-            switch_state = isChecked
-            if (isChecked) {
-                buttonView.text = "Restaurant"
-            } else {
-                buttonView.text = "Client"
-            }
-        }
-
-        // Login button
-        btn_login.setOnClickListener {
-            if (switch_state) { // Restaurant logic
-                // TODO Login
-
-                if (true) { // Logged
-                    // TODO forward needed intents
-                    val idRestau = 4
-
-                    val intent = Intent(this, RestaurantActivity::class.java).apply {
-                        putExtra(getString(R.string.intent_login_id_restaurant),
-                            idRestau)
-                    }
-                    startActivity(intent)
-                } else {
-                    showToast(this,getString(R.string.err_invalid_credentials))
-                }
-            } else { // Client logic
-
-                if (true) {
-                    val idClient = 4
-
-                    val intent = Intent(this, MapsActivity::class.java).apply {
-                        putExtra(getString(R.string.intent_login_id_restaurant),
-                            idClient)
-                    }
-                    startActivity(intent)
-                }
-            }
-        }
-
-        btn_register.setOnClickListener {
-            val intent = Intent(this, RegisterActivity::class.java)
-            startActivity(intent)
-        }
     }
 
     override fun onStart() {
@@ -118,7 +68,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun updateUI(user: FirebaseUser?) {
         if (user != null) {
-            val intent = Intent(this, MapsActivity::class.java)
+            val intent = Intent(this, ClientActivity::class.java)
             startActivity(intent)
         } else {
             et_password.setText("")
