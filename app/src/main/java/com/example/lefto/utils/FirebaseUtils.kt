@@ -153,9 +153,9 @@ class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
                         GeneralUtils.restaurantDeepCopy(restaurantItem, r)
                         restaurantItem.id = document.id
                     }
-                    Log.d(TAG, "${document.id} => ${document.data}")
+                    Log.d(RestaurantActivity.TAG, "${document.id} => ${document.data}")
                 }
-                RestaurantActivity.adapter.notifyDataSetChanged()
+
             }
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error getting documents: ", exception)

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import com.example.lefto.R
 import com.example.lefto.model.RestaurantItem
 import com.example.lefto.utils.FirebaseUtils
@@ -20,6 +21,10 @@ import kotlinx.android.synthetic.main.activity_login.btn_register
 import kotlinx.android.synthetic.main.activity_login.et_email
 import kotlinx.android.synthetic.main.activity_login.et_password
 import kotlinx.android.synthetic.main.activity_login.sw_type
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LoginActivity : AppCompatActivity() {
     private var switch_state = false // default : client
@@ -27,6 +32,8 @@ class LoginActivity : AppCompatActivity() {
 
     companion object {
         private val TAG = LoginActivity::class.java.name
+        val BUNDLE_RESTAURANT = "BUNDLE_RESTAURANT"
+        val BUNDLE_INDEX_RESTAURANT = "restaurant"
     }
     private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -130,24 +137,31 @@ class LoginActivity : AppCompatActivity() {
         if (user != null) {
             if (switch_state) {
                 // TODO Get restaurant linked to specified email
-                var resto_user = RestaurantItem()
-                suspend {
-                    user.email?.let { DAO.getRestaurantLinkedWithEmail(it,resto_user) }
-                }
+                var restaurant = RestaurantItem()
+                val intent = Intent(this, RestaurantActivity::class.java)
 
-                val intent = Intent(this, ClientActivity::class.java).apply {
-                    //putExtra
+                GlobalScope.launch {
+                    suspend {
+                        auth.currentUser?.email?.let {
+                            DAO.getRestaurantLinkedWithEmail(it,restaurant)
+                        }
+
+                        // TODO better ^^'
+                        while(restaurant.name=="");
+
+                        intent.putExtra("name", restaurant.name)
+                        intent.putExtra("id", restaurant.id)
+                        Log.d(TAG,"intent with : ${restaurant}")
+                        startActivity(intent)
+
+                    }.invoke()
                 }
 
 
             } else {
                 // TODO Get client linked to specified email
-                val idClient = 4
 
-                val intent = Intent(this, ClientActivity::class.java).apply {
-                    putExtra(getString(R.string.intent_login_id_restaurant),
-                        idClient)
-                }
+                val intent = Intent(this, ClientActivity::class.java)
                 startActivity(intent)
             }
 

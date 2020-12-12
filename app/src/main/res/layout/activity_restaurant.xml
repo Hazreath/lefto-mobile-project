@@ -5,7 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
+<!--    editable = false, because I witnessed a strange bug where I could edit
+the textview (dunno how to reproduce it, I assume my pc is so potato that my emulator is
+doing strange stuff)-->
     <TextView
         android:id="@+id/txt_restau_name"
         android:layout_width="wrap_content"
@@ -16,6 +18,7 @@
         android:layout_marginBottom="16dp"
         android:capitalize="characters"
         android:text="Estonian Pizza"
+        android:editable="false"
         android:textColor="#000000"
         android:textSize="30sp"
         app:layout_constraintBottom_toTopOf="@+id/btn_add_leftover"
