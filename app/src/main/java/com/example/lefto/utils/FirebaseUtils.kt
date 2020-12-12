@@ -2,6 +2,8 @@ package com.example.lefto.utils
 
 import android.app.Activity
 import android.util.Log
+import com.example.lefto.RestaurantActivity
+import com.example.lefto.adapter.LeftoverAdapter
 import com.example.lefto.model.ClientItem
 import com.example.lefto.model.LeftOverItem
 import com.example.lefto.model.RestaurantItem
@@ -49,9 +51,11 @@ class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
             .add(leftover)
             .addOnSuccessListener { documentReference ->
                 Log.d(TAG, "Leftover written with ID: ${documentReference.id}")
+                GeneralUtils.showToast(activity,"Leftover added !")
             }
             .addOnFailureListener { e ->
                 Log.w(TAG, "Error adding leftover", e)
+                GeneralUtils.showToast(activity,"Error occured when adding the leftover.")
             }
     }
 
@@ -72,8 +76,9 @@ class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
             }
     }
 
-    fun getLeftovers(restaurant: RestaurantItem) {
-        val leftoverList = mutableListOf<LeftOverItem>()
+    fun getLeftovers(restaurant: RestaurantItem, leftoverList : ArrayList<LeftOverItem>) {
+//        val leftoverList = mutableListOf<LeftOverItem>()
+        Log.d(TAG, "getLeftovers")
         db.collection(LEFTOVER_COLLECTION)
             .whereEqualTo("restaurantItem.name", restaurant.name)
             .get()
@@ -83,6 +88,7 @@ class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
                     leftover.let { leftoverList.add(it) }
                     Log.d(TAG, "${document.id} => ${document.data}")
                 }
+                RestaurantActivity.adapter.notifyDataSetChanged()
             }
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error getting documents: ", exception)

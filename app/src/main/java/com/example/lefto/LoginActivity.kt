@@ -72,6 +72,11 @@ class LoginActivity : AppCompatActivity() {
                 }
             }
         }
+
+        btn_register.setOnClickListener {
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onStart() {
