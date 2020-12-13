@@ -4,34 +4,31 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProviders
 import com.example.lefto.R
-import com.example.lefto.ViewModel.MapsActivityViewModel
+import com.example.lefto.ViewModel.ClientActivityViewModel
 import com.example.lefto.data.GoogleMapDTO
 import com.example.lefto.model.LeftOverItem
 import com.example.lefto.utils.GoogleMapsUtils
 import com.example.lefto.utils.LocationUtils
-
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.*
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import com.google.android.gms.maps.model.PolylineOptions
 
 
 //GoogleMap.OnMarkerClickListener
@@ -49,7 +46,7 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
-        val model = ViewModelProviders.of(this).get(MapsActivityViewModel::class.java)
+        val model = ViewModelProviders.of(this).get(ClientActivityViewModel::class.java)
 //        val restaurants = model.getRestaurantList()
 
         leftovers = model.getLeftOverList()
@@ -66,14 +63,22 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             when {
                 ContextCompat.checkSelfPermission(applicationContext, permission) == PackageManager.PERMISSION_GRANTED -> {
-                    Toast.makeText(applicationContext, "$name permission granted", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        applicationContext,
+                        "$name permission granted",
+                        Toast.LENGTH_LONG
+                    ).show()
 
                     // Do what to need to do, permission granted so you can.
 //                    registerCallReceiver()
                     locationWork()
                 }
                 // Explain the user why he should gives us the permission
-                shouldShowRequestPermissionRationale(permission) -> showDialog(permission, name, requestCode)
+                shouldShowRequestPermissionRationale(permission) -> showDialog(
+                    permission,
+                    name,
+                    requestCode
+                )
 
                 else -> ActivityCompat.requestPermissions(this, arrayOf(permission), requestCode)
             }
@@ -94,7 +99,11 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
                 // Already accepted.
                 locationWork()
 //                registerCallReceiver()
-                Toast.makeText(applicationContext, "$name permission already granted", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    applicationContext,
+                    "$name permission already granted",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
 
@@ -110,7 +119,11 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
             setMessage("Permission to access your $name is required to use this app.")
             setTitle("Permission required")
             setPositiveButton("OK") { dialog, which ->
-                ActivityCompat.requestPermissions(this@ClientActivity, arrayOf(permission), requestCode)
+                ActivityCompat.requestPermissions(
+                    this@ClientActivity,
+                    arrayOf(permission),
+                    requestCode
+                )
             }
         }
 
@@ -131,11 +144,18 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap = googleMap
 
         // Update your app to properly request permissions from the user when first started.
-        checkForPermissions(Manifest.permission.ACCESS_FINE_LOCATION, "phone fine location", ACCESS_FINE_LOCATION_RQ)
+        checkForPermissions(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            "phone fine location",
+            ACCESS_FINE_LOCATION_RQ
+        )
 
         leftovers?.let {
             it.forEach { leftover ->
-                val position = LatLng(leftover.restaurantItem.latitude, leftover.restaurantItem.longitude)
+                val position = LatLng(
+                    leftover.restaurantItem.latitude,
+                    leftover.restaurantItem.longitude
+                )
 
                 mMap.addMarker(
                     MarkerOptions()
@@ -163,9 +183,9 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(delta, 12F))
 
         val helper = LocationUtils(applicationContext)
-        val location = helper.getCurrenLocationUsingNetwork()
+        val location = helper.getCurrentLocationUsingGPS()
 
-        Log.i(TAG, "try to find location")
+        Log.i(TAG, "try to find location $location")
 
         location?.apply {
             Log.i(TAG, location.latitude.toString())
@@ -173,10 +193,17 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
             val latIng = LatLng(location.latitude, location.longitude)
             mMap.addMarker(
                 MarkerOptions()
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN))
+//                    .icon(BitmapDescriptorFactory.)
                     .position(latIng)
                     .title("You are here")
             )
-
+//            mMap.addCircle(
+//                CircleOptions().center(latIng)
+//                    .radius(accuracy.toDouble())
+//                    .strokeColor(Color.argb(255, 0, 153, 255))
+//                    .fillColor(Color.argb(30, 0, 153, 255)).strokeWidth(2f)
+//            )
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latIng, 12F))
 
             val apiKey = resources.getString(R.string.google_maps_key)
@@ -195,7 +222,7 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
             val response = client.newCall(request).execute()
             val data = response.body()!!.string()
 
-            Log.d("mxmx" , " data from google map: $data")
+            Log.d("mxmx", " data from google map: $data")
             val result =  ArrayList<List<LatLng>>()
 
             val respObj = Gson().fromJson(data, GoogleMapDTO::class.java)
@@ -205,7 +232,10 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
             val distance = respObj.routes[0].legs[0].distance.text
 
             runOnUiThread {
-                mMap.addMarker(MarkerOptions().position(delta).title("Delta Centre").snippet("Travel time: $duration distance: $distance"))
+                mMap.addMarker(
+                    MarkerOptions().position(delta).title("Delta Centre")
+                        .snippet("Travel time: $duration distance: $distance")
+                )
             }
 
             for (i in 0 until respObj.routes[0].legs[0].steps.size) {

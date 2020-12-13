@@ -57,8 +57,8 @@ class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
             }
     }
 
-    fun getAllRestaurants() {
-        val restaurantList = mutableListOf<RestaurantItem>()
+    fun getAllRestaurants(restaurantList : ArrayList<RestaurantItem>) {
+
         db.collection(RESTAURANT_COLLECTION)
             .get()
             .addOnSuccessListener { result ->
@@ -66,9 +66,10 @@ class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
                     val restaurant = document.toObject<RestaurantItem>()
                     if (restaurant != null) {
                         restaurant.id = document.id
+                        restaurant?.let { restaurantList.add(it) }
                     }
                     Log.d(TAG, "$restaurant")
-                    restaurant?.let { restaurantList.add(it) }
+
                     Log.d(TAG, "${document.id} => ${document.data}")
                 }
             }

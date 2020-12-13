@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.example.lefto.model.LeftOverItem
 import com.example.lefto.model.RestaurantItem
 
-class MapsActivityViewModel: ViewModel() {
+class ClientActivityViewModel: ViewModel() {
     private var restaurantList: MutableList<RestaurantItem>? = null
     private var leftOverList: MutableList<LeftOverItem>? = null
 

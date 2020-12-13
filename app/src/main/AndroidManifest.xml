@@ -17,9 +17,9 @@
         android:theme="@style/AppTheme">
         <activity android:name=".view.AddLeftoverActivity"></activity>
         <activity android:name=".view.RestaurantActivity"/>
-         <activity android:name=".view.ClientActivity"></activity>
+         <activity android:name=".view.LoginActivity"></activity>
         <activity android:name=".view.RegisterActivity" />
-        <activity android:name=".view.LoginActivity" >
+        <activity android:name=".view.ClientActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

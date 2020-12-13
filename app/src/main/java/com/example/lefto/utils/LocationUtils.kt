@@ -33,7 +33,7 @@ class LocationUtils(private val mContext: Context) : LocationListener {
     }
 
     @SuppressLint("MissingPermission")
-    fun getCurrenLocationUsingNetwork() : Location? {
+    fun getCurrentLocationUsingNetwork() : Location? {
         if (!isNetworkEnabled) {
             Log.v("TAG ","Network not enabled!")
             return null
