@@ -22,6 +22,8 @@
     <!--    PREFERENCES-->
     <string name="pref_filename">"userPref"</string>
 
-    <!-- REQUIRED STRING FORMATTING (sorry did not find a use for this one -->
+    <!-- REQUIRED STRING FORMATTING (sorry did not find any use for this one -->
     <string name="debugRestau">Restaurant : ID=%1$s! Name=%2$s</string>
+
+    <string name="firebase_push_channel">"PUSH_LEFTOVER"</string>
 </resources>

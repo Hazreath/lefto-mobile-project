@@ -1,6 +1,7 @@
 package com.example.lefto.view
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -30,7 +31,9 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import kotlinx.android.synthetic.main.activity_maps.*
@@ -40,6 +43,8 @@ import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 
 
 //GoogleMap.OnMarkerClickListener
@@ -73,6 +78,9 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
             Context.MODE_PRIVATE
         )
 
+        getFbMessagingToken()
+        checkGooglePlayServices()
+
         btn_disconnect.setOnClickListener {
             restauFetched = false
             val intent = Intent(this, LoginActivity::class.java);
@@ -96,12 +104,45 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
         
 //        val restaurants = model.getRestaurantList()
 
-
         //leftovers = model.getLeftOverList()
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 
 
+    }
+
+    private fun checkGooglePlayServices(): Boolean {
+        // 1
+        val status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
+        // 2
+        return if (status != ConnectionResult.SUCCESS) {
+            Log.e(TAG, "Error")
+            // ask user to update google play services and manage the error.
+            false
+        } else {
+            // 3
+            Log.i(TAG, "Google play services updated")
+            true
+        }
+    }
+
+    private fun getFbMessagingToken() {
+        Log.d("Firebase","ALLOOOOOOOOO")
+        FirebaseInstanceId.getInstance().instanceId
+            .addOnCompleteListener(OnCompleteListener { task ->
+                // 2
+                if (!task.isSuccessful) {
+                    Log.w(TAG, "getInstanceId failed", task.exception)
+                    return@OnCompleteListener
+                }
+                // 3
+                val token = task.result?.token
+
+                // 4
+                val msg = "my toekn:" + token
+                Log.d(TAG, msg)
+                Toast.makeText(baseContext, msg, Toast.LENGTH_LONG).show()
+            })
     }
     private fun reloadMap() {
         mMap.clear()
