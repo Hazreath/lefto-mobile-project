@@ -79,10 +79,7 @@ class LoginActivity : AppCompatActivity() {
 
     private suspend fun signIn(email: String, password: String) {
         Log.d(TAG, "Signing in with email: $email")
-        try {
-        } catch (e: RuntimeException) {
 
-        }
         if (switch_state) {
             if (!DAO.restaurantExists(email)) {
                 Log.w(TAG, "Sign in with email: Failure")
