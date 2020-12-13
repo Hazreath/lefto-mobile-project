@@ -51,17 +51,6 @@ class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
     }
 
     fun addLeftover(leftover: LeftOverItem) {
-        db.collection(LEFTOVER_COLLECTION)
-            .add(leftover)
-            .addOnSuccessListener { documentReference ->
-                Log.d(TAG, "Leftover written with ID: ${documentReference.id}")
-                GeneralUtils.showToast(activity,"Leftover added !")
-            }
-            .addOnFailureListener { e ->
-                Log.w(TAG, "Error adding leftover", e)
-                GeneralUtils.showToast(activity,"Error occured when adding the leftover.")
-            }
-
         val newLeftoverRef = db.collection(LEFTOVER_COLLECTION).document()
         leftover.id = newLeftoverRef.id
         newLeftoverRef
