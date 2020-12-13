@@ -4,8 +4,6 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
-import androidx.core.os.bundleOf
 import com.example.lefto.R
 import com.example.lefto.model.RestaurantItem
 import com.example.lefto.utils.FirebaseUtils
@@ -21,10 +19,7 @@ import kotlinx.android.synthetic.main.activity_login.btn_register
 import kotlinx.android.synthetic.main.activity_login.et_email
 import kotlinx.android.synthetic.main.activity_login.et_password
 import kotlinx.android.synthetic.main.activity_login.sw_type
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 class LoginActivity : AppCompatActivity() {
     private var switch_state = false // default : client

@@ -9,6 +9,7 @@ import com.example.lefto.model.RestaurantItem
 import com.example.lefto.view.ClientActivity
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
+import kotlinx.coroutines.tasks.await
 
 class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
 
@@ -20,10 +21,12 @@ class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
     }
 
     fun addClient(client: ClientItem) {
-        db.collection(CLIENT_COLLECTION)
-            .add(client)
-            .addOnSuccessListener { documentReference ->
-                Log.d(TAG, "Client written with ID: ${documentReference.id}")
+        val newClientRef = db.collection(CLIENT_COLLECTION).document()
+        client.id = newClientRef.id
+        newClientRef
+            .set(client)
+            .addOnSuccessListener {
+                Log.d(TAG, "Client written with ID: ${client.id}")
                 GeneralUtils.showToast(activity,"Registered successfully !")
             }
             .addOnFailureListener { e ->
@@ -33,10 +36,12 @@ class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
     }
 
     fun addRestaurant(restaurant: RestaurantItem) {
-        db.collection(RESTAURANT_COLLECTION)
-            .add(restaurant)
-            .addOnSuccessListener { documentReference ->
-                Log.d(TAG, "Restaurant written with ID: ${documentReference.id}")
+        val newRestaurantRef = db.collection(RESTAURANT_COLLECTION).document()
+        restaurant.id = newRestaurantRef.id
+        newRestaurantRef
+            .set(restaurant)
+            .addOnSuccessListener {
+                Log.d(TAG, "Restaurant written with ID: ${restaurant.id}")
                 GeneralUtils.showToast(activity,"Registered successfully !")
             }
             .addOnFailureListener { e ->
@@ -50,6 +55,19 @@ class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
             .add(leftover)
             .addOnSuccessListener { documentReference ->
                 Log.d(TAG, "Leftover written with ID: ${documentReference.id}")
+                GeneralUtils.showToast(activity,"Leftover added !")
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error adding leftover", e)
+                GeneralUtils.showToast(activity,"Error occured when adding the leftover.")
+            }
+
+        val newLeftoverRef = db.collection(LEFTOVER_COLLECTION).document()
+        leftover.id = newLeftoverRef.id
+        newLeftoverRef
+            .set(leftover)
+            .addOnSuccessListener {
+                Log.d(TAG, "Leftover written with ID: ${leftover.id}")
                 GeneralUtils.showToast(activity,"Leftover added !")
             }
             .addOnFailureListener { e ->
@@ -82,28 +100,6 @@ class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
             }
             .addOnCompleteListener() {
                 ClientActivity.restauFetched = true
-            }
-    }
-
-    fun restaurantExists(restaurant : RestaurantItem) {
-        db.collection(RESTAURANT_COLLECTION)
-            .get()
-            .addOnSuccessListener { result ->
-                for (document in result.documents) {
-                    val r = document.toObject<RestaurantItem>()
-                    Log.d(TAG, "$r")
-                    Log.d(TAG, "${document.id} => ${document.data}")
-                    if (r != null) {
-                        if (restaurant.name == r.name) {
-                            // Deep copy of r into restaurant
-                            GeneralUtils.restaurantDeepCopy(restaurant,r)
-                            restaurant.id = document.id
-                        }
-                    }
-                }
-            }
-            .addOnFailureListener { exception ->
-                Log.d(TAG, "Error getting documents: ", exception)
             }
     }
 
@@ -188,5 +184,13 @@ class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error getting documents: ", exception)
             }
+    }
+
+    suspend fun clientExists(client: ClientItem): Boolean {
+        return db.collection(CLIENT_COLLECTION).document(client.id).get().await().exists()
+    }
+
+    suspend fun restaurantExists(restaurant: RestaurantItem): Boolean {
+        return db.collection(RESTAURANT_COLLECTION).document(restaurant.id).get().await().exists()
     }
 }
