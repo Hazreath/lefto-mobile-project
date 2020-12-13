@@ -81,6 +81,11 @@ class LoginActivity : AppCompatActivity() {
         updateUI(null)
     }
 
+    override fun onBackPressed() {
+//        super.onBackPressed()
+        moveTaskToBack(false)
+    }
+
     private fun signIn(email: String, password: String) {
         Log.d(TAG, "Signing in with email: $email")
 

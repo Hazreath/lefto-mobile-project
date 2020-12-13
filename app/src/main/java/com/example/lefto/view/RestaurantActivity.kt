@@ -81,8 +81,17 @@ class RestaurantActivity : AppCompatActivity() {
             intent.putExtra("id", currentRestaurant.id)
             startActivity(intent)
         }
-    }
 
+        btn_disconnect.setOnClickListener {
+            auth.signOut()
+            val intent = Intent(this, LoginActivity::class.java);
+            startActivity(intent)
+        }
+    }
+    override fun onBackPressed() {
+//        super.onBackPressed()
+        moveTaskToBack(false)
+    }
     override fun onResume() {
         super.onResume()
         // fetch data from DB

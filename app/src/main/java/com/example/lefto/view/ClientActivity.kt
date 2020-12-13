@@ -30,6 +30,7 @@ import com.google.android.gms.maps.model.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
+import kotlinx.android.synthetic.main.activity_restaurant.*
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -57,12 +58,13 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
         DAO = FirebaseUtils(this, Firebase.firestore)
         val model = ViewModelProviders.of(this).get(ClientActivityViewModel::class.java)
 
-
-
-
-
-
         setContentView(R.layout.activity_maps)
+
+        btn_disconnect.setOnClickListener {
+            restauFetched = false
+            val intent = Intent(this, LoginActivity::class.java);
+            startActivity(intent)
+        }
 
         Log.d("BENJI","before")
         GlobalScope.launch {
@@ -121,6 +123,11 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
                 else -> ActivityCompat.requestPermissions(this, arrayOf(permission), requestCode)
             }
         }
+    }
+
+    override fun onBackPressed() {
+//        super.onBackPressed()
+        moveTaskToBack(false)
     }
 
     override fun onRequestPermissionsResult(

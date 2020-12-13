@@ -8,6 +8,19 @@
 <!--    editable = false, because I witnessed a strange bug where I could edit
 the textview (dunno how to reproduce it, I assume my pc is so potato that my emulator is
 doing strange stuff)-->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_disconnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:clickable="true"
+        android:tint="@android:color/white"
+        app:backgroundTint="@color/lefto_red"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/logout" />
+
     <TextView
         android:id="@+id/txt_restau_name"
         android:layout_width="wrap_content"
@@ -18,6 +31,7 @@ doing strange stuff)-->
         android:layout_marginBottom="16dp"
         android:capitalize="characters"
         android:editable="false"
+        android:text="test_restaurant"
         android:textColor="#000000"
         android:textSize="30sp"
         app:layout_constraintBottom_toTopOf="@+id/btn_add_leftover"
@@ -51,6 +65,9 @@ doing strange stuff)-->
         android:layout_marginTop="16dp"
         android:layout_marginBottom="32dp"
         android:text="Add a leftover"
+        android:textColor="#FFFFFF"
+        android:textColorHighlight="#E4B7B7"
+        android:backgroundTint="@color/lefto_red"
         app:layout_constraintBottom_toTopOf="@+id/scrollView2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
