@@ -179,7 +179,21 @@ class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
         return db.collection(CLIENT_COLLECTION).document(client.id).get().await().exists()
     }
 
+    suspend fun clientExists(email: String): Boolean {
+        return !db.collection(CLIENT_COLLECTION)
+            .whereEqualTo("email", email)
+            .get()
+            .await().isEmpty
+    }
+
     suspend fun restaurantExists(restaurant: RestaurantItem): Boolean {
         return db.collection(RESTAURANT_COLLECTION).document(restaurant.id).get().await().exists()
+    }
+
+    suspend fun restaurantExists(email: String): Boolean {
+        return !db.collection(RESTAURANT_COLLECTION)
+            .whereEqualTo("email", email)
+            .get()
+            .await().isEmpty
     }
 }

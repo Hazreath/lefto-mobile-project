@@ -20,6 +20,7 @@ import kotlinx.android.synthetic.main.activity_login.et_email
 import kotlinx.android.synthetic.main.activity_login.et_password
 import kotlinx.android.synthetic.main.activity_login.sw_type
 import kotlinx.coroutines.*
+import java.lang.RuntimeException
 
 class LoginActivity : AppCompatActivity() {
     private var switch_state = false // default : client
@@ -34,8 +35,6 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-
-        setLoginButtonListener()
 
         auth = Firebase.auth
 
@@ -54,7 +53,9 @@ class LoginActivity : AppCompatActivity() {
         // Login button
         btn_login.setOnClickListener {
             if (validateForm()) {
-                signIn(et_email.text.toString(), et_password.text.toString())
+                CoroutineScope(Dispatchers.Main).launch {
+                    signIn(et_email.text.toString(), et_password.text.toString())
+                }
             }
         }
 
@@ -76,8 +77,27 @@ class LoginActivity : AppCompatActivity() {
         updateUI(null)
     }
 
-    private fun signIn(email: String, password: String) {
+    private suspend fun signIn(email: String, password: String) {
         Log.d(TAG, "Signing in with email: $email")
+        try {
+        } catch (e: RuntimeException) {
+
+        }
+        if (switch_state) {
+            if (!DAO.restaurantExists(email)) {
+                Log.w(TAG, "Sign in with email: Failure")
+                GeneralUtils.showToast(this, "Account does not exist")
+                return
+            }
+        }
+        else {
+            Log.d(TAG, "Checking client: ${!DAO.clientExists(email)}")
+            if (!DAO.clientExists(email)) {
+                Log.w(TAG, "Sign in with email: Failure")
+                GeneralUtils.showToast(this, "Account does not exist")
+                return
+            }
+        }
 
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) {task ->
@@ -162,14 +182,6 @@ class LoginActivity : AppCompatActivity() {
 
         } else {
             et_password.setText("")
-        }
-    }
-
-    private fun setLoginButtonListener() {
-        btn_login.setOnClickListener {
-            val email = et_email.text.toString()
-            val password = et_password.text.toString()
-            signIn(email, password)
         }
     }
 }
