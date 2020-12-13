@@ -2,6 +2,8 @@ package com.example.lefto.utils
 
 import android.app.Activity
 import android.util.Log
+import androidx.recyclerview.widget.RecyclerView
+import com.example.lefto.holder.LeftoverViewHolder
 import com.example.lefto.view.RestaurantActivity
 import com.example.lefto.model.ClientItem
 import com.example.lefto.model.LeftOverItem
@@ -107,7 +109,8 @@ class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
             }
     }
 
-    fun getLeftovers(restaurant: RestaurantItem, leftoverList : ArrayList<LeftOverItem>) {
+    fun getLeftovers(restaurant: RestaurantItem, leftoverList : ArrayList<LeftOverItem>,
+    adapter : RecyclerView.Adapter<LeftoverViewHolder>) {
 //        val leftoverList = mutableListOf<LeftOverItem>()
         Log.d(TAG, "getLeftovers")
         db.collection(LEFTOVER_COLLECTION)
@@ -122,7 +125,7 @@ class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
                     leftover.let { leftoverList.add(it) }
                     Log.d(TAG, "${document.id} => ${document.data}")
                 }
-                RestaurantActivity.adapter.notifyDataSetChanged()
+                adapter.notifyDataSetChanged()
             }
             .addOnFailureListener { exception ->
                 Log.w(TAG, "Error getting documents: ", exception)

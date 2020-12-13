@@ -1,6 +1,7 @@
 package com.example.lefto.view
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
@@ -100,11 +101,11 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             when {
                 ContextCompat.checkSelfPermission(applicationContext, permission) == PackageManager.PERMISSION_GRANTED -> {
-                    Toast.makeText(
-                        applicationContext,
-                        "$name permission granted",
-                        Toast.LENGTH_LONG
-                    ).show()
+//                    Toast.makeText(
+//                        applicationContext,
+//                        "$name permission granted",
+//                        Toast.LENGTH_LONG
+//                    ).show()
 
                     // Do what to need to do, permission granted so you can.
 //                    registerCallReceiver()
@@ -235,18 +236,26 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun onClickMarker(marker : Marker) : Boolean {
+        val id = marker.tag.toString()
 
+        if (id == "user") {
+            lastClickedMarkerId = ""
+            return false
+        }
         // First click : show toast & title
-        if (marker.tag.toString() != lastClickedMarkerId) {
-            lastClickedMarkerId = marker.tag.toString()
+        if ( id != lastClickedMarkerId) {
+            lastClickedMarkerId = id
             marker.showInfoWindow()
             GeneralUtils.showToast(this, "Click again to show available leftovers")
         } else {
-            GeneralUtils.showToast(this, "2nd time !")
+
             lastClickedMarkerId = ""
 
             // Forward intent to SeeLeftoversActivity along with restaurant ID
-            
+            val intent = Intent(this, SeeLeftoversActivity::class.java)
+            intent.putExtra("restaurant_id", id)
+            intent.putExtra("restaurant_name", marker.title.toString())
+            startActivity(intent)
         }
 
         return marker.tag.toString() == lastClickedMarkerId
@@ -280,7 +289,7 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
 //                    .icon(BitmapDescriptorFactory.)
                     .position(latIng)
                     .title("You are here")
-            )
+            ).tag = "user"
 //            mMap.addCircle(
 //                CircleOptions().center(latIng)
 //                    .radius(accuracy.toDouble())

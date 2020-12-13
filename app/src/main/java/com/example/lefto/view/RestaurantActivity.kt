@@ -87,7 +87,7 @@ class RestaurantActivity : AppCompatActivity() {
         super.onResume()
         // fetch data from DB
         leftovers.clear()
-        DAO.getLeftovers(currentRestaurant, leftovers)
+        DAO.getLeftovers(currentRestaurant, leftovers, adapter)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
