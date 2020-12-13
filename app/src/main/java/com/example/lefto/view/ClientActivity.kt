@@ -16,6 +16,9 @@ import com.example.lefto.R
 import com.example.lefto.ViewModel.ClientActivityViewModel
 import com.example.lefto.data.GoogleMapDTO
 import com.example.lefto.model.LeftOverItem
+import com.example.lefto.model.RestaurantItem
+import com.example.lefto.utils.FirebaseUtils
+import com.example.lefto.utils.GeneralUtils
 import com.example.lefto.utils.GoogleMapsUtils
 import com.example.lefto.utils.LocationUtils
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -23,10 +26,10 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
@@ -37,26 +40,60 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
     companion object {
         const val ACCESS_FINE_LOCATION_RQ = 500
         const val TAG = "Lefto-MapsActivity"
+        lateinit var DAO : FirebaseUtils
+        var restauFetched = false
     }
 
     private lateinit var mMap: GoogleMap
     private var leftovers: MutableList<LeftOverItem>? = null
+    private var restaurants: ArrayList<RestaurantItem>? = null
+
+    // Second click on marker gestion
+    var lastClickedMarkerId = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        DAO = FirebaseUtils(this, Firebase.firestore)
+        val model = ViewModelProviders.of(this).get(ClientActivityViewModel::class.java)
+
+
+
+
+
+
         setContentView(R.layout.activity_maps)
 
-        val model = ViewModelProviders.of(this).get(ClientActivityViewModel::class.java)
+        Log.d("BENJI","before")
+        GlobalScope.launch {
+            suspend {
+                Log.d("BENJI","during")
+                restaurants = model.getRestaurantList()
+                while(!restauFetched); // TODO better if i have some time
+                displayMap()
+            }.invoke()
+
+
+        }
+        Log.d("BENJI","after")
 //        val restaurants = model.getRestaurantList()
 
-        leftovers = model.getLeftOverList()
+
+        //leftovers = model.getLeftOverList()
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager
-                .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
-    }
 
+
+    }
+    private fun displayMap() {
+        runOnUiThread {
+            val mapFragment = supportFragmentManager
+                .findFragmentById(R.id.map) as SupportMapFragment
+            mapFragment.getMapAsync(this)
+            Log.d("BENJI","display fragment")
+        }
+
+
+    }
     private fun checkForPermissions(permission: String, name: String, requestCode: Int) {
         // In previous version the user is asked when he installed the app
         // so we don't ask at runtime.
@@ -143,6 +180,8 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
+        Log.d("BENJI","onMapReady")
+        Log.d("BENJI","$restaurants")
         // Update your app to properly request permissions from the user when first started.
         checkForPermissions(
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -150,24 +189,68 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
             ACCESS_FINE_LOCATION_RQ
         )
 
-        leftovers?.let {
-            it.forEach { leftover ->
+        restaurants?.let {
+            it.forEach { r ->
                 val position = LatLng(
-                    leftover.restaurantItem.latitude,
-                    leftover.restaurantItem.longitude
+                    r.latitude,
+                    r.longitude
                 )
+
+                // Custom color : vegan -> green, halal -> red
+                // regular : yellow
+                var snippet = ""
+                var color = BitmapDescriptorFactory.HUE_YELLOW
+                if (r.halal && r.vegan) {
+                    color = BitmapDescriptorFactory.HUE_VIOLET
+                    snippet += "(halal,vegan)"
+                } else if (r.halal) {
+                    color = BitmapDescriptorFactory.HUE_RED
+                    snippet += "(halal)"
+                } else if (r.vegan) {
+                    color = BitmapDescriptorFactory.HUE_GREEN
+                    snippet += "(vegan)"
+                }
 
                 mMap.addMarker(
                     MarkerOptions()
                         .position(position)
-                        .title(leftover.restaurantItem.name)
-                )
+                        .title(r.name)
+                        .snippet(snippet)
+                        .icon(BitmapDescriptorFactory.defaultMarker(color))
+                ).tag = r.id
+
+                mMap.setOnMarkerClickListener( GoogleMap.OnMarkerClickListener() {
+                    var marker = it
+                    onClickMarker(marker)
+                })
+
+                // Reset second click feature when click map
+                mMap.setOnMapClickListener {
+                    lastClickedMarkerId = ""
+                }
             }
         }
 
 //        mMap.setOnMarkerClickListener(this)
     }
 
+    private fun onClickMarker(marker : Marker) : Boolean {
+
+        // First click : show toast & title
+        if (marker.tag.toString() != lastClickedMarkerId) {
+            lastClickedMarkerId = marker.tag.toString()
+            marker.showInfoWindow()
+            GeneralUtils.showToast(this, "Click again to show available leftovers")
+        } else {
+            GeneralUtils.showToast(this, "2nd time !")
+            lastClickedMarkerId = ""
+
+            // Forward intent to SeeLeftoversActivity along with restaurant ID
+            
+        }
+
+        return marker.tag.toString() == lastClickedMarkerId
+    }
 
     private fun locationWork() {
         val mode = "walking"

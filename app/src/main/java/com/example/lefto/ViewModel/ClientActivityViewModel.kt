@@ -1,16 +1,30 @@
 package com.example.lefto.ViewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.lefto.model.LeftOverItem
 import com.example.lefto.model.RestaurantItem
+import com.example.lefto.utils.FirebaseUtils
+import com.example.lefto.view.ClientActivity
+import com.example.lefto.view.LoginActivity
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class ClientActivityViewModel: ViewModel() {
-    private var restaurantList: MutableList<RestaurantItem>? = null
+    private var restaurantList = ArrayList<RestaurantItem>()
     private var leftOverList: MutableList<LeftOverItem>? = null
+    private var DAO = ClientActivity.DAO
 
-    fun getRestaurantList(): MutableList<RestaurantItem>? {
-        if (restaurantList == null) {
+    suspend fun getRestaurantList(): ArrayList<RestaurantItem>? {
+        Log.d("BENJI","get restau list")
+        if (restaurantList.size == 0) {
+            Log.d("BENJI","need to load")
             loadRestaurantList()
+
+
         }
 
         return restaurantList
@@ -25,7 +39,17 @@ class ClientActivityViewModel: ViewModel() {
     }
 
     private fun loadRestaurantList() {
-        TODO("Not yet implemented")
+
+        var fetched = false
+        GlobalScope.launch {
+            restaurantList?.let {
+                DAO.getAllRestaurants(restaurantList,fetched)
+            }
+        }
+
+        Log.d("BENJI","restaurants : $restaurantList")
+
+
     }
 
     private fun loadLeftOverList() {
