@@ -1,9 +1,12 @@
 package com.example.lefto.view
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -30,7 +33,10 @@ import com.google.android.gms.maps.model.*
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
+import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.android.synthetic.main.activity_restaurant.*
+import kotlinx.android.synthetic.main.activity_restaurant.btn_disconnect
+import kotlinx.android.synthetic.main.activity_settings.*
 import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -38,6 +44,8 @@ import okhttp3.Request
 
 //GoogleMap.OnMarkerClickListener
 class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
+    lateinit var PREFERENCES : SharedPreferences
+
 
     companion object {
         const val ACCESS_FINE_LOCATION_RQ = 500
@@ -60,24 +68,32 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
 
         setContentView(R.layout.activity_maps)
 
+        PREFERENCES = getSharedPreferences(
+            getString(R.string.pref_filename),
+            Context.MODE_PRIVATE
+        )
+
         btn_disconnect.setOnClickListener {
             restauFetched = false
             val intent = Intent(this, LoginActivity::class.java);
             startActivity(intent)
         }
-
-        Log.d("BENJI","before")
+        btn_settings.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java);
+            startActivity(intent)
+        }
+        btn_reload.setOnClickListener {
+            //this.recreate()
+            reloadMap()
+        }
         GlobalScope.launch {
             suspend {
-                Log.d("BENJI","during")
                 restaurants = model.getRestaurantList()
                 while(!restauFetched); // TODO better if i have some time
                 displayMap()
             }.invoke()
-
-
         }
-        Log.d("BENJI","after")
+        
 //        val restaurants = model.getRestaurantList()
 
 
@@ -87,12 +103,18 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
     }
+    private fun reloadMap() {
+        mMap.clear()
+        locationWork()
+        onMapReady(mMap)
+    }
+
     private fun displayMap() {
         runOnUiThread {
             val mapFragment = supportFragmentManager
                 .findFragmentById(R.id.map) as SupportMapFragment
             mapFragment.getMapAsync(this)
-            Log.d("BENJI","display fragment")
+
         }
 
 
@@ -130,6 +152,13 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
         moveTaskToBack(false)
     }
 
+    override fun onResume() {
+        super.onResume()
+        PREFERENCES = getSharedPreferences(
+            getString(R.string.pref_filename),
+            Context.MODE_PRIVATE
+        )
+    }
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -157,6 +186,15 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == SettingsActivity.SETTINGS_REQUEST_CODE) {
+            // Reload the map to take new preferences in consideration
+            Log.d("BENJI","SETTINGS UPDATED")
+            this.recreate()
+        }
+    }
     private fun showDialog(permission: String, name: String, requestCode: Int) {
         val builder = AlertDialog.Builder(this)
 
@@ -176,15 +214,7 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
         dialog.show()
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
+
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
@@ -208,34 +238,42 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
                 // regular : yellow
                 var snippet = ""
                 var color = BitmapDescriptorFactory.HUE_YELLOW
-                if (r.halal && r.vegan) {
-                    color = BitmapDescriptorFactory.HUE_VIOLET
-                    snippet += "(halal,vegan)"
-                } else if (r.halal) {
-                    color = BitmapDescriptorFactory.HUE_RED
-                    snippet += "(halal)"
-                } else if (r.vegan) {
-                    color = BitmapDescriptorFactory.HUE_GREEN
-                    snippet += "(vegan)"
+                var prefOnlyHalal = PREFERENCES.getBoolean("onlyHalal",false)
+                var prefOnlyVegan = PREFERENCES.getBoolean("onlyVegan",false)
+                var displayRestaurant = (r.halal && prefOnlyHalal) || (r.vegan && prefOnlyVegan) ||
+                        (!prefOnlyHalal && !prefOnlyVegan)
+                // filter by preferences
+                if (displayRestaurant) {
+                    if (r.halal && r.vegan) {
+                        color = BitmapDescriptorFactory.HUE_VIOLET
+                        snippet += "(halal,vegan)"
+                    } else if (r.halal) {
+                        color = BitmapDescriptorFactory.HUE_RED
+                        snippet += "(halal)"
+                    } else if (r.vegan) {
+                        color = BitmapDescriptorFactory.HUE_GREEN
+                        snippet += "(vegan)"
+                    }
+
+                    mMap.addMarker(
+                        MarkerOptions()
+                            .position(position)
+                            .title(r.name)
+                            .snippet(snippet)
+                            .icon(BitmapDescriptorFactory.defaultMarker(color))
+                    ).tag = r.id
+
                 }
+            }
 
-                mMap.addMarker(
-                    MarkerOptions()
-                        .position(position)
-                        .title(r.name)
-                        .snippet(snippet)
-                        .icon(BitmapDescriptorFactory.defaultMarker(color))
-                ).tag = r.id
+            mMap.setOnMarkerClickListener( GoogleMap.OnMarkerClickListener() {
+                var marker = it
+                onClickMarker(marker)
+            })
 
-                mMap.setOnMarkerClickListener( GoogleMap.OnMarkerClickListener() {
-                    var marker = it
-                    onClickMarker(marker)
-                })
-
-                // Reset second click feature when click map
-                mMap.setOnMapClickListener {
-                    lastClickedMarkerId = ""
-                }
+            // Reset second click feature when click map
+            mMap.setOnMapClickListener {
+                lastClickedMarkerId = ""
             }
         }
 
@@ -282,7 +320,16 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(delta, 12F))
 
         val helper = LocationUtils(applicationContext)
-        val location = helper.getCurrentLocationUsingGPS()
+
+        var prefWIFILocation = PREFERENCES.getBoolean("WIFILocation",false)
+        Log.d("BENJI","LOCATION WIFI : $prefWIFILocation")
+        var location : Location?
+        if (prefWIFILocation) {
+            location = helper.getCurrentLocationUsingNetwork()
+        } else {
+            location = helper.getCurrentLocationUsingGPS()
+        }
+
 
         Log.i(TAG, "try to find location $location")
 

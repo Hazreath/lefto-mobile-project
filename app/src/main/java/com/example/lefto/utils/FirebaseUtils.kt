@@ -1,8 +1,10 @@
 package com.example.lefto.utils
 
 import android.app.Activity
+import android.provider.Settings.System.getString
 import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
+import com.example.lefto.R
 import com.example.lefto.holder.LeftoverViewHolder
 import com.example.lefto.view.RestaurantActivity
 import com.example.lefto.model.ClientItem
@@ -11,6 +13,7 @@ import com.example.lefto.model.RestaurantItem
 import com.example.lefto.view.ClientActivity
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
+import java.security.AccessController.getContext
 
 class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
 
@@ -65,19 +68,20 @@ class FirebaseUtils(val activity: Activity, private val db: FirebaseFirestore) {
         db.collection(RESTAURANT_COLLECTION)
             .get()
             .addOnSuccessListener { result ->
-                Log.d("BENJI", "onSuccess")
+
                 for (document in result.documents) {
                     val restaurant = document.toObject<RestaurantItem>()
                     if (restaurant != null) {
-                        Log.d("BENJI", "$restaurant")
+
                         restaurant.id = document.id
                         restaurant?.let { restaurantList.add(it) }
+//                        var debug = getString(R.string.debugRestau, restaurant.id, restaurant.name)
+//                        Log.d(TAG, debug)
                     }
-                    Log.d(TAG, "$restaurant")
+
 
                     Log.d(TAG, "${document.id} => ${document.data}")
                 }
-
             }
             .addOnFailureListener { exception ->
                 Log.d(TAG, "Error getting documents: ", exception)
