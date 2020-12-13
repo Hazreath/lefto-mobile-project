@@ -16,10 +16,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_register.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 class RegisterActivity : AppCompatActivity() {
     private var switch_state = false // default : client
@@ -55,59 +52,82 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         btn_register.setOnClickListener {
-            // TODO check client and restaurant unicity (email field)
-            if (switch_state && checkRestauRegisterInputs()) { // Restau
-                var email = et_email.text.toString()
-                var password = et_password.text.toString()
+            var email = et_email.text.toString()
+            var password = et_password.text.toString()
 
-                var latlng = arrayOf(
-                    et_latlong.text.split(';')[0].toDouble(),
-                    et_latlong.text.split(';')[1].toDouble()
-                )
+            CoroutineScope(Dispatchers.Main).async {
+                if (!checkIfUserExists(email)) {
+// TODO check client and restaurant unicity (email field)
+                    if (switch_state && checkRestauRegisterInputs()) { // Restau
 
-                var r = RestaurantItem(
-                    email = email,
-                    name = et_restau_name.text.toString(),
-                    latitude = latlng[0],
-                    longitude = latlng[1],
-                    type = et_type.text.toString(),
-                    vegan = chk_vegan.isChecked,
-                    halal = chk_halal.isChecked
-                )
+                        var latlng = arrayOf(
+                            et_latlong.text.split(';')[0].toDouble(),
+                            et_latlong.text.split(';')[1].toDouble()
+                        )
 
-                DAO.addRestaurant(r)
-                GlobalScope.launch {
-                    suspend {
-                        addFirebaseUser(email,password)
+                        var r = RestaurantItem(
+                            email = email,
+                            name = et_restau_name.text.toString(),
+                            latitude = latlng[0],
+                            longitude = latlng[1],
+                            type = et_type.text.toString(),
+                            vegan = chk_vegan.isChecked,
+                            halal = chk_halal.isChecked
+                        )
 
-                        withContext(Dispatchers.Main) {
+                        DAO.addRestaurant(r)
+                        GlobalScope.launch {
+                            suspend {
+                                addFirebaseUser(email,password)
 
-                            returnToLoginScreen()
+                                withContext(Dispatchers.Main) {
+
+                                    returnToLoginScreen()
+                                }
+                            }.invoke()
                         }
-                    }.invoke()
-                }
 
-            } else if (checkClientRegisterInputs()) { // Client
-                var email = et_email.text.toString()
-                var password = et_password.text.toString()
-                var c = ClientItem(
-                    email = email,
-                    city = et_city.text.toString()
-                )
-                DAO.addClient(c)
-                GlobalScope.launch {
-                    suspend {
-                        addFirebaseUser(email,password)
+                    } else if (checkClientRegisterInputs()) { // Client
+                        var c = ClientItem(
+                            email = email,
+                            city = et_city.text.toString()
+                        )
+                        DAO.addClient(c)
+                        GlobalScope.launch {
+                            suspend {
+                                addFirebaseUser(email,password)
 
-                        withContext(Dispatchers.Main) {
+                                withContext(Dispatchers.Main) {
 
-                            returnToLoginScreen()
+                                    returnToLoginScreen()
+                                }
+                            }.invoke()
                         }
-                    }.invoke()
+                    }
                 }
             }
         }
     }
+
+    private suspend fun checkIfUserExists(email: String): Boolean {
+        if (!switch_state) {
+            Log.d(TAG, "Client exists: ${DAO.clientExists(email)}")
+            if (DAO.clientExists(email)) {
+                Log.w(TAG, "Client with the email already exists")
+                GeneralUtils.showToast(this, "Client with the email already exists")
+                return true
+            }
+        } else {
+            Log.d(TAG, "Restaurant exists: ${DAO.restaurantExists(email)}")
+            if (DAO.restaurantExists(email)) {
+                Log.w(TAG, "Restaurant with the email already exists")
+                GeneralUtils.showToast(this, "Restaurant with the email already exists")
+                return true
+            }
+        }
+        return false
+    }
+
     private fun returnToLoginScreen() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
