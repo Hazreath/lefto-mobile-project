@@ -108,10 +108,12 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
     }
+    
     private fun returnToLoginScreen() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
     }
+
     private fun setRestaurantUI(visibility : Int) {
         et_latlong.visibility = visibility
         et_type.visibility = visibility
@@ -148,10 +150,9 @@ class RegisterActivity : AppCompatActivity() {
         if (!mail.isNullOrEmpty()) {
             validMailFormat = GeneralUtils.isMailFormat(mail)
         }
+
         // password length check
         passwordTooShort = et_password.text.toString().length < MIN_PASSWORD_LENGTH
-
-        // Check if user exists
 
         // Coordinates check
         val regex = "^-?\\d*.\\d*;-?\\d*.\\d*".toRegex()
@@ -208,11 +209,6 @@ class RegisterActivity : AppCompatActivity() {
         return !empty && validMailFormat && !passwordTooShort
     }
 
-    suspend fun restaurantExists(restau : RestaurantItem) : Boolean {
-
-        // TODO TEST
-        return restau.id.isNullOrEmpty()
-    }
 
     fun addFirebaseUser(email : String, password : String) {
         auth.createUserWithEmailAndPassword(email, password)

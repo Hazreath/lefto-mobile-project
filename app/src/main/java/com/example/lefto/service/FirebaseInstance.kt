@@ -18,6 +18,7 @@ class FirebaseInstance : FirebaseMessagingService() {
         handleMessage(p0)
     }
 
+    // Firebase Cloud Message sends a msg everyday at 19h EEST
     private fun handleMessage(remoteMessage: RemoteMessage) {
         val handler = Handler(Looper.getMainLooper())
 

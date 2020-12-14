@@ -18,21 +18,20 @@ class ClientActivityViewModel: ViewModel() {
     private var leftOverList: MutableList<LeftOverItem>? = null
     private var DAO = ClientActivity.DAO
 
+    private var TAG = "ClientActivityViewModel"
     suspend fun getRestaurantList(): ArrayList<RestaurantItem>? {
-        Log.d("BENJI","get restau list")
+//        Log.d(TAG,"get restau list")
         if (restaurantList.size == 0) {
-            Log.d("BENJI","need to load")
+//            Log.d(TAG,"need to load")
             loadRestaurantList()
-
-
         }
-
         return restaurantList
     }
 
+    // DEPRECATED
     fun getLeftOverList(): MutableList<LeftOverItem>? {
         if (leftOverList == null) {
-            loadLeftOverList()
+            //loadLeftOverList()
         }
 
         return leftOverList
@@ -47,11 +46,12 @@ class ClientActivityViewModel: ViewModel() {
             }
         }
 
-        Log.d("BENJI","restaurants : $restaurantList")
+//        Log.d(TAG,"restaurants : $restaurantList")
 
 
     }
 
+    // DEPRECATED
     private fun loadLeftOverList() {
         val restaurant = RestaurantItem(name="La Dolce Vita", latitude = 58.38217369982617, longitude = 26.722880700728307)
 

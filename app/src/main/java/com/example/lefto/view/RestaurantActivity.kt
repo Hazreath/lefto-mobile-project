@@ -23,12 +23,6 @@ import kotlinx.coroutines.withContext
 
 class RestaurantActivity : AppCompatActivity() {
 
-//    var leftovers = mutableListOf(
-//        LeftOverItem("Pastas","yummy",
-//            false,true,2,resto),
-//        LeftOverItem("Eggplants","not yummy",
-//            true,true,2,resto),
-//    )
     private lateinit var auth: FirebaseAuth
     val currentRestaurant = RestaurantItem()
 
@@ -41,10 +35,7 @@ class RestaurantActivity : AppCompatActivity() {
     }
 
     var leftovers = ArrayList<LeftOverItem>()
-    var REQUEST_ADD_LEFTOVER = 120
 
-    // TODO popups
-    // TODO Database communication
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -56,26 +47,18 @@ class RestaurantActivity : AppCompatActivity() {
             currentRestaurant.id = intent.getStringExtra("id").toString()
         }
 
-
         Log.d("Login","Restaurant view : $currentRestaurant")
         DAO = FirebaseUtils(this, Firebase.firestore)
 
         setContentView(R.layout.activity_restaurant)
         Log.d(TAG,"Content view SET !")
 
-
-        val arrayAdapter = ArrayAdapter<LeftOverItem>(this,
-            android.R.layout.simple_list_item_1,leftovers)
         list_leftovers.layoutManager = LinearLayoutManager(this)
         adapter = LeftoverAdapter(leftovers)
         list_leftovers.adapter = adapter
 
         txt_restau_name.text = currentRestaurant.name
         btn_add_leftover.setOnClickListener {
-//            leftovers.add(0, LeftOverItem("jesepo",
-//                "nonplus",false,false,69,resto)
-//            )
-//            adapter.notifyDataSetChanged()
             val intent = Intent(this, AddLeftoverActivity::class.java);
             intent.putExtra("name", currentRestaurant.name)
             intent.putExtra("id", currentRestaurant.id)

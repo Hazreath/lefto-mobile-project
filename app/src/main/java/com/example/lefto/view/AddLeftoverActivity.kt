@@ -56,8 +56,6 @@ class AddLeftoverActivity : AppCompatActivity() {
 
     fun inputCheck() : Boolean {
         var empty = false
-        var validMailFormat = false
-        var validCoords = false
         var inputs = arrayOf(
             et_name,
             et_description,

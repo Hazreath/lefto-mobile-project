@@ -32,10 +32,11 @@ class LoginActivity : AppCompatActivity() {
 
     companion object {
         private val TAG = LoginActivity::class.java.name
-        val BUNDLE_RESTAURANT = "BUNDLE_RESTAURANT"
-        val BUNDLE_INDEX_RESTAURANT = "restaurant"
+
     }
+
     private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
@@ -71,7 +72,7 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        signOut() // TODO: Remove later - for testing purposes -> log out every time the app starts
+        auth.signOut()
         val currentUser = auth.currentUser
         updateUI(currentUser)
     }
@@ -141,7 +142,7 @@ class LoginActivity : AppCompatActivity() {
     private fun updateUI(user: FirebaseUser?) {
         if (user != null) {
             if (switch_state) {
-                // TODO Get restaurant linked to specified email
+
                 var restaurant = RestaurantItem()
                 val intent = Intent(this, RestaurantActivity::class.java)
 
@@ -151,7 +152,7 @@ class LoginActivity : AppCompatActivity() {
                             DAO.getRestaurantLinkedWithEmail(it,restaurant)
                         }
 
-                        // TODO better ^^'
+                        // active wait
                         while(restaurant.name=="");
 
                         intent.putExtra("name", restaurant.name)
@@ -164,8 +165,6 @@ class LoginActivity : AppCompatActivity() {
 
 
             } else {
-                // TODO Get client linked to specified email
-
                 val intent = Intent(this, ClientActivity::class.java)
                 startActivity(intent)
             }

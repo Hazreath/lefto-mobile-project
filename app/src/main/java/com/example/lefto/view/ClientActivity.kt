@@ -60,7 +60,6 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private lateinit var mMap: GoogleMap
-    private var leftovers: MutableList<LeftOverItem>? = null
     private var restaurants: ArrayList<RestaurantItem>? = null
 
     // Second click on marker gestion
@@ -77,9 +76,9 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
             getString(R.string.pref_filename),
             Context.MODE_PRIVATE
         )
-
-        getFbMessagingToken()
-        checkGooglePlayServices()
+        // UNCOMMENT TO GET THE FIREBASE CLOUD MESSAGING TOKEN, DO NOT USE IT IN PRODUCTION
+//        getFbMessagingToken()
+//        checkGooglePlayServices()
 
         btn_disconnect.setOnClickListener {
             restauFetched = false
@@ -91,7 +90,7 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
             startActivity(intent)
         }
         btn_reload.setOnClickListener {
-            //this.recreate()
+
             reloadMap()
         }
         GlobalScope.launch {
@@ -101,33 +100,22 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
                 displayMap()
             }.invoke()
         }
-        
-//        val restaurants = model.getRestaurantList()
-
-        //leftovers = model.getLeftOverList()
-
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-
-
     }
 
+    // DEBUG : Google play services not working ? (FIXED)
     private fun checkGooglePlayServices(): Boolean {
-        // 1
         val status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this)
-        // 2
         return if (status != ConnectionResult.SUCCESS) {
-            Log.e(TAG, "Error")
-            // ask user to update google play services and manage the error.
+            Log.e(TAG, "Error with google play services")
             false
         } else {
             // 3
-            Log.i(TAG, "Google play services updated")
+            Log.i(TAG, "Google play services OK")
             true
         }
     }
 
     private fun getFbMessagingToken() {
-        Log.d("Firebase","ALLOOOOOOOOO")
         FirebaseInstanceId.getInstance().instanceId
             .addOnCompleteListener(OnCompleteListener { task ->
                 // 2
@@ -139,7 +127,7 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
                 val token = task.result?.token
 
                 // 4
-                val msg = "my toekn:" + token
+                val msg = "my token: " + token
                 Log.d(TAG, msg)
                 Toast.makeText(baseContext, msg, Toast.LENGTH_LONG).show()
             })
@@ -157,23 +145,14 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
             mapFragment.getMapAsync(this)
 
         }
-
-
     }
+
     private fun checkForPermissions(permission: String, name: String, requestCode: Int) {
         // In previous version the user is asked when he installed the app
         // so we don't ask at runtime.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             when {
                 ContextCompat.checkSelfPermission(applicationContext, permission) == PackageManager.PERMISSION_GRANTED -> {
-//                    Toast.makeText(
-//                        applicationContext,
-//                        "$name permission granted",
-//                        Toast.LENGTH_LONG
-//                    ).show()
-
-                    // Do what to need to do, permission granted so you can.
-//                    registerCallReceiver()
                     locationWork()
                 }
                 // Explain the user why he should gives us the permission
@@ -232,7 +211,7 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
 
         if (requestCode == SettingsActivity.SETTINGS_REQUEST_CODE) {
             // Reload the map to take new preferences in consideration
-            Log.d("BENJI","SETTINGS UPDATED")
+            Log.d(TAG,"SETTINGS UPDATED")
             this.recreate()
         }
     }
@@ -259,8 +238,8 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-        Log.d("BENJI","onMapReady")
-        Log.d("BENJI","$restaurants")
+//        Log.d(TAG,"onMapReady")
+//        Log.d(TAG,"$restaurants")
         // Update your app to properly request permissions from the user when first started.
         checkForPermissions(
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -317,8 +296,6 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
                 lastClickedMarkerId = ""
             }
         }
-
-//        mMap.setOnMarkerClickListener(this)
     }
 
     private fun onClickMarker(marker : Marker) : Boolean {
@@ -328,7 +305,8 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
             lastClickedMarkerId = ""
             return false
         }
-        // First click : show toast & title
+
+        // First click : show help toast & title
         if ( id != lastClickedMarkerId) {
             lastClickedMarkerId = id
             marker.showInfoWindow()
@@ -352,10 +330,6 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
 
         val googleMapsUtils = GoogleMapsUtils()
 
-        // Add a marker in Sydney and move the camera
-//        val sydney = LatLng(-34.0, 151.0)
-//        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
         val delta = LatLng(58.385254, 26.725064)
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(delta, 12F))
@@ -363,7 +337,7 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
         val helper = LocationUtils(applicationContext)
 
         var prefWIFILocation = PREFERENCES.getBoolean("WIFILocation",false)
-        Log.d("BENJI","LOCATION WIFI : $prefWIFILocation")
+//        Log.d(TAG,"LOCATION WIFI : $prefWIFILocation")
         var location : Location?
         if (prefWIFILocation) {
             location = helper.getCurrentLocationUsingNetwork()
@@ -381,16 +355,11 @@ class ClientActivity : AppCompatActivity(), OnMapReadyCallback {
             mMap.addMarker(
                 MarkerOptions()
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN))
-//                    .icon(BitmapDescriptorFactory.)
+
                     .position(latIng)
                     .title("You are here")
             ).tag = "user"
-//            mMap.addCircle(
-//                CircleOptions().center(latIng)
-//                    .radius(accuracy.toDouble())
-//                    .strokeColor(Color.argb(255, 0, 153, 255))
-//                    .fillColor(Color.argb(30, 0, 153, 255)).strokeWidth(2f)
-//            )
+
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latIng, 12F))
 
             val apiKey = resources.getString(R.string.google_maps_key)

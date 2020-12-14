@@ -50,7 +50,6 @@
         android:hint="Email"
         android:inputType="textEmailAddress"
 
-        android:text="test@restau.eu"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
@@ -64,7 +63,6 @@
         android:ems="10"
         android:hint="Password"
         android:inputType="textWebPassword"
-        android:text="test48"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
